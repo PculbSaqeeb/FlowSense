@@ -1,0 +1,3 @@
+"""
+FlowSense Core Package
+"""

@@ -1,0 +1,213 @@
+# ===========================================
+# FlowSense - Production .gitignore
+# ===========================================
+
+# ---------- Python / Backend ----------
+# Virtual environments
+backend/venv/
+backend/.venv/
+backend/env/
+backend/.env.local
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Distribution / packaging
+*.egg-info/
+*.egg
+dist/
+build/
+eggs/
+*.whl
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Environments
+.env
+.env.local
+.env.production
+.env.staging
+*.env
+
+# But keep .env.example
+!.env.example
+
+# ---------- Node.js / Frontend ----------
+# Dependencies
+frontend/node_modules/
+node_modules/
+
+# Next.js
+frontend/.next/
+frontend/out/
+frontend/.vercel
+
+# Build outputs
+*.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing
+frontend/coverage/
+
+# ---------- Database ----------
+# SQLite databases (generated at runtime)
+*.db
+*.sqlite
+*.sqlite3
+backend/flowsense.db
+backend/*.db
+
+# Database backups
+*.db-journal
+*.db-shm
+*.db-wal
+
+# ---------- IDE / Editor ----------
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+tags
+
+# Emacs
+\#*\#
+.#*
+*.elc
+
+# ---------- OS ----------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+
+# ---------- Logs ----------
+*.log
+backend/server.log
+backend/server_err.log
+logs/
+
+# ---------- Temporary files ----------
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+
+# ---------- Secrets (NEVER commit) ----------
+# Private keys
+*.pem
+*.p12
+*.pfx
+*.key
+
+# Certificates
+*.crt
+*.cert
+*.pem
+
+# AWS
+.aws/
+credentials
+
+# GCP
+*.json
+service-account*.json
+
+# SSH
+ssh/
+*.pub
+
+# ---------- Documentation build ----------
+site/
+docs/_build/
+
+# ---------- Misc ----------
+# Coverage
+coverage/
+.nyc_output/
+
+# Environment overrides
+.env.*
+!.env.example
+!.env.test
+
+# Lock files (keep package-lock.json for frontend)
+# backend/Pipfile.lock
+
+# ---------- Deploy artifacts ----------
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Kubernetes
+*.kubeconfig
+
+# CI/CD artifacts
+.github/workflows/*.yml
+.gitlab-ci.yml
+circle.yml
+
+# ---------- Frontend specific ----------
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# ESLint
+.eslintcache
+
+# Prettier
+.prettiercache
+
+# Tailwind
+frontend/.tailwind-cache/
