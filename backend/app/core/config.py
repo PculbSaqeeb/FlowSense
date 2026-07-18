@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     APP_NAME: str = "FlowSense API"
     APP_VERSION: str = "1.0.0"
     APP_DESCRIPTION: str = "AI-Powered Hospital Flow Prediction System"
-    ENVIRONMENT: str = "development"
     
+
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./flowsense.db"
     
