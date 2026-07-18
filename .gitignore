@@ -161,7 +161,7 @@ logs/
 credentials
 
 # GCP
-*.json
+# *.json (removed because it ignores package.json)
 service-account*.json
 
 # SSH
