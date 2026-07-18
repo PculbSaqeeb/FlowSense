@@ -436,7 +436,7 @@ export function ReportExport({ status, prediction, recommendations, staff, surge
 
       if (surgeries.length > 0) {
         y += 8;
-        if (y > H - 50) { pdf.addPage(); drawHeader('Operational Status', 'Continued', [245, 158, 11]); drawFooter(3); y = 42; }
+        if (y > H - 75) { pdf.addPage(); drawHeader('Operational Status', 'Continued', [245, 158, 11]); drawFooter(4); y = 42; }
         
         pdf.setFontSize(11);
         pdf.setTextColor(15, 23, 42);
