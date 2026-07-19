@@ -63,6 +63,7 @@ async def get_current_prediction():
     Get current boarding prediction using dynamically generated hospital state
     """
     try:
+        await predictor._ensure_trained()
         state = generate_dynamic_hospital_state()
         arrival_rate = 8.0 + (state["boarding_count"] * 0.5)
         discharge_rate = max(2.0, 6.0 - (state["boarding_count"] * 0.3))
@@ -110,6 +111,7 @@ async def get_custom_prediction(request: CustomPredictionRequest):
     This proves the ML model is actually computing predictions, not returning cached data.
     """
     try:
+        await predictor._ensure_trained()
         state = _build_current_state(request.model_dump())
         arrival_rate = request.arrival_rate
         discharge_rate = request.discharge_rate
@@ -156,6 +158,7 @@ async def get_prediction_timeline(
     Get prediction timeline for the next N hours using dynamic state
     """
     try:
+        await predictor._ensure_trained()
         state = generate_dynamic_hospital_state()
         arrival_rate = 8.0 + (state["boarding_count"] * 0.5)
         discharge_rate = max(2.0, 6.0 - (state["boarding_count"] * 0.3))
@@ -270,6 +273,7 @@ class ScenarioRequest(BaseModel):
 async def simulate_scenario(request: ScenarioRequest):
     """Run what-if scenario with interventions and return before/after comparison."""
     try:
+        await predictor._ensure_trained()
         # Build baseline state
         baseline_state = _build_current_state(request.model_dump())
         baseline_state["ed_beds_total"] = 30

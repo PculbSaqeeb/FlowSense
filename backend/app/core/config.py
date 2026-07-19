@@ -3,7 +3,8 @@ FlowSense - Application Configuration
 Environment-based settings for the hospital flow prediction system
 """
 
-from pydantic_settings import BaseSettings
+from typing import List
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -20,12 +21,13 @@ class Settings(BaseSettings):
     
     # API Configuration
     API_V1_PREFIX: str = "/api/v1"
-    CORS_ORIGINS: list = ["*"]
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
-        extra = "ignore"
+    CORS_ORIGINS: List[str] = ["*"]
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore",
+    )
 
 
 # Global settings instance

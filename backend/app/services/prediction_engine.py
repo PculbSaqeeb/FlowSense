@@ -6,6 +6,7 @@ Wraps the ML engine and provides the same interface as before
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass
+import asyncio
 
 from .ml_engine import ml_engine, PredictionResult
 
@@ -33,13 +34,31 @@ class BoardingPredictor:
     
     def __init__(self):
         self._trained = False
-    
-    def _ensure_trained(self):
-        if not self._trained and not ml_engine.is_trained:
-            print("[PredictionEngine] First prediction - training ML models...")
-            ml_engine.train(days=90)
+        self._train_lock = asyncio.Lock()
+        self._is_training = False
+
+    async def _ensure_trained(self):
+        """Async training trigger — offenloads the CPU-bound ML training
+        to a thread executor so the event loop is never blocked. Uses
+        a lock so concurrent callers wait for the same training run."""
+        if self._trained or ml_engine.is_trained:
             self._trained = True
-    
+            return
+        async with self._train_lock:
+            # Re-check inside the lock — another caller may have trained
+            # while we were waiting.
+            if self._trained or ml_engine.is_trained:
+                self._trained = True
+                return
+            self._is_training = True
+            try:
+                print("[PredictionEngine] First prediction - training ML models...")
+                loop = asyncio.get_running_loop()
+                await loop.run_in_executor(None, ml_engine.train, 90)
+                self._trained = True
+            finally:
+                self._is_training = False
+
     def predict(
         self,
         current_state: Dict,
@@ -47,8 +66,12 @@ class BoardingPredictor:
         arrival_rate: float = 10.0,
         discharge_rate: float = 4.0,
     ) -> LegacyPredictionResult:
-        self._ensure_trained()
-        
+        # Synchronous fallback for non-async callers (e.g. state_manager
+        # already running inside an executor). If the model isn't trained,
+        # the caller should have awaited _ensure_trained first.
+        if not self._trained and not ml_engine.is_trained:
+            ml_engine.train(days=90)
+            self._trained = True
         result = ml_engine.predict(current_state, prediction_horizon, arrival_rate, discharge_rate)
         
         return LegacyPredictionResult(
@@ -69,8 +92,9 @@ class BoardingPredictor:
         arrival_rate: float = 10.0,
         discharge_rate: float = 4.0,
     ) -> List[LegacyPredictionResult]:
-        self._ensure_trained()
-        
+        if not self._trained and not ml_engine.is_trained:
+            ml_engine.train(days=90)
+            self._trained = True
         results = ml_engine.predict_timeline(current_state, horizons, arrival_rate, discharge_rate)
         
         return [
@@ -121,7 +145,9 @@ class BoardingPredictor:
         discharge_rate: float = 4.0,
         threshold: int = 15,
     ) -> Optional[int]:
-        self._ensure_trained()
+        if not self._trained and not ml_engine.is_trained:
+            ml_engine.train(days=90)
+            self._trained = True
         return ml_engine.estimate_time_to_critical(current_state, arrival_rate, discharge_rate, threshold)
 
 

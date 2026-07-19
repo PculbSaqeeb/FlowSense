@@ -136,7 +136,11 @@ export function useLiveDashboard(): SSEState & { reconnect: () => void } {
         clearTimeout(reconnectTimerRef.current);
       }
     };
-  }, [connect, connectCountRef.current]);
+    // NOTE: connectCountRef.current is intentionally NOT in the dep array.
+    // Refs are not reactive — they don't trigger re-runs. Reconnect() drives
+    // reconnection via the explicit setTimeout(connect, 50) call below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connect]);
 
   const reconnect = useCallback(() => {
     if (eventSourceRef.current) {
@@ -145,7 +149,8 @@ export function useLiveDashboard(): SSEState & { reconnect: () => void } {
     reconnectAttempt.current = 0;
     setState(INITIAL_STATE);
     connectCountRef.current++;
-    // Force re-run of connect effect
+    // Force re-run of connect effect. (We intentionally don't rely on a
+    // ref-mutation to trigger the effect above — refs are not reactive.)
     setTimeout(connect, 50);
   }, [connect]);
 

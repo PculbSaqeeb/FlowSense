@@ -31,25 +31,27 @@ async def lifespan(app: FastAPI):
     await db_manager.create_tables()
     print("Database tables created")
     
-    # Train ML models on startup
+    # Train ML models on startup (offloaded to a thread executor so the
+    # event loop is not blocked during the ~4s scikit-learn training run).
     try:
         from .services.ml_engine import ml_engine
         print("[STARTUP] Training ML models on real hospital data (143,280 ED visits)...")
-        await asyncio.get_event_loop().run_in_executor(None, ml_engine.train, 180)
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, ml_engine.train, 180)
         print(f"[STARTUP] ML models trained. is_trained={ml_engine.is_trained}, models={list(ml_engine.models.keys())}")
     except Exception as e:
         print(f"[STARTUP] ML training FAILED: {e}")
         import traceback
         traceback.print_exc()
-    
+
     # Start background state manager for SSE
     state_manager.start()
     print("[STARTUP] SSE state manager started")
-    
+
     yield
-    
-    # Shutdown
-    state_manager.stop()
+
+    # Shutdown — await the cancellation so the loop finishes cleanly.
+    await state_manager.stop()
     print("SSE state manager stopped")
     print("Shutting down application")
 

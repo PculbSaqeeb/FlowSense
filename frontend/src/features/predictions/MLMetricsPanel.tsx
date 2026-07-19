@@ -62,7 +62,7 @@ export function MLMetricsPanel({ className = '' }: MLMetricsPanelProps) {
           <div className="text-left">
             <span className="font-medium text-sm">AI Prediction Engine</span>
             <div className="text-xs text-gray-400">
-              3 models trained on {metrics.total_samples?.toLocaleString()} samples
+              {metrics.models?.length ?? 0} models trained on {metrics.total_samples?.toLocaleString()} samples
             </div>
           </div>
         </div>

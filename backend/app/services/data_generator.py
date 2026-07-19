@@ -414,7 +414,13 @@ class HospitalDataGenerator:
                 "expected_end": end_time,
                 "actual_end": None,
                 "pacu_bay": random.randint(1, 4),
-                "status": random.choice(["scheduled", "in_progress", "completed"]),
+                # Allow "delayed" so the dashboard's total_delayed counter
+                # is not stuck at zero. Weighted toward scheduled/in_progress
+                # so most surgeries still show progress.
+                "status": random.choices(
+                    ["scheduled", "in_progress", "completed", "delayed"],
+                    weights=[0.4, 0.3, 0.2, 0.1],
+                )[0],
                 "procedure_type": random.choice(self.PROCEDURES),
                 "is_urgent": random.random() < 0.2,
             })
@@ -458,7 +464,11 @@ class HospitalDataGenerator:
                 "role": "nurse",
                 "department": "Emergency",
                 "shift_start": datetime.now().replace(hour=shift_hour),
-                "shift_end": datetime.now().replace(hour=(shift_hour + 12) % 24),
+                # Roll over to the next day if the shift crosses midnight
+                # (e.g. 19:00 start → 07:00 the next morning). Without this
+                # fix, shift_end was earlier than shift_start for night shifts
+                # producing negative durations.
+                "shift_end": datetime.now().replace(hour=shift_hour) + timedelta(hours=12),
                 "is_on_duty": True,
                 "is_available_overtime": random.random() < 0.3,
                 "skills": skills,
@@ -775,8 +785,13 @@ def generate_dynamic_hospital_state() -> dict:
             'critical_count': real_stats['critical_count'],
             'mental_health_count': real_stats['mental_health_count'],
             'complaint_categories': real_stats['complaint_categories'],
+            'triage_distribution': real_stats.get('triage_distribution', {
+                1: 0.05, 2: 0.15, 3: 0.35, 4: 0.30, 5: 0.15,
+            }),
             'patients_this_hour': patients_this_hour,
             'admission_rate': round(admission_rate, 2),
+            'admitted_count': int(real_stats.get('admitted_count', 0)),
+            'discharged_count': discharges,
             'ed_wait_time_avg': ed_wait,
             'or_delays': or_delays,
             'discharges_today': discharges,
@@ -786,6 +801,7 @@ def generate_dynamic_hospital_state() -> dict:
         boarding = random.randint(3, 20)
         ed_occupied = random.randint(12, 30)
         nurses = random.randint(6, 14)
+        discharges_fallback = random.randint(2, 12)
         return {
             "boarding_count": boarding,
             "ed_beds_occupied": ed_occupied,
@@ -796,8 +812,11 @@ def generate_dynamic_hospital_state() -> dict:
             "nurse_patient_ratio": round(ed_occupied / max(1, nurses), 1),
             "weather_condition": random.choice(["sunny", "cloudy", "rainy", "stormy"]),
             "temperature": random.randint(25, 95),
+            "triage_distribution": {1: 0.05, 2: 0.15, 3: 0.35, 4: 0.30, 5: 0.15},
+            "admitted_count": max(0, int(boarding * 0.3)),
+            "discharged_count": discharges_fallback,
             "ed_wait_time_avg": max(10, int(boarding * 4 + np.random.normal(0, 8))),
             "or_delays": max(0, int(boarding * 0.3 + np.random.normal(0, 1))),
-            "discharges_today": random.randint(2, 12),
+            "discharges_today": discharges_fallback,
         }
 

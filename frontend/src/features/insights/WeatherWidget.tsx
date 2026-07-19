@@ -10,11 +10,20 @@ interface WeatherWidgetProps {
 }
 
 const weatherIcons: Record<string, React.ReactNode> = {
+  // Both short ('sun') and full ('sunny') forms work — backend and the
+  // WhatIfScenario simulator use different keys, so accept both spellings.
   sun: <Sun className="w-6 h-6 text-yellow-400" />,
+  sunny: <Sun className="w-6 h-6 text-yellow-400" />,
   cloud: <Cloud className="w-6 h-6 text-gray-400" />,
+  cloudy: <Cloud className="w-6 h-6 text-gray-400" />,
   'cloud-rain': <CloudRain className="w-6 h-6 text-blue-400" />,
+  rain: <CloudRain className="w-6 h-6 text-blue-400" />,
+  rainy: <CloudRain className="w-6 h-6 text-blue-400" />,
   'cloud-lightning': <CloudLightning className="w-6 h-6 text-purple-400" />,
+  stormy: <CloudLightning className="w-6 h-6 text-purple-400" />,
+  storm: <CloudLightning className="w-6 h-6 text-purple-400" />,
   snowflake: <Snowflake className="w-6 h-6 text-cyan-400" />,
+  snow: <Snowflake className="w-6 h-6 text-cyan-400" />,
 };
 
 export const WeatherWidget = React.memo(function WeatherWidget({ weather, isLoading }: WeatherWidgetProps) {

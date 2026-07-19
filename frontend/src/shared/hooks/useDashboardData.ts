@@ -74,10 +74,33 @@ export function useDashboardData(): UseDashboardData {
   }, [sse.isConnected]);
 
   const refresh = useCallback(async () => {
-    setIsLoading(true);
     setError(null);
     sse.reconnect();
-  }, [sse.reconnect]);
+    // Eagerly fetch polling data so the UI flips out of the loading state
+    // immediately even if SSE takes a moment to re-establish. We do NOT
+    // setIsLoading(true) here because that previously caused an indefinite
+    // spinner when SSE subsequently failed (loading stayed true with no
+    // polling fallback to flip it back off).
+    try {
+      const [statusData, predictionData, timelineData, recommendationsData] =
+        await Promise.all([
+          api.getDashboardStatus(),
+          api.getCurrentPrediction(),
+          api.getPredictionTimeline(12),
+          api.getActiveRecommendations(),
+        ]);
+      setPollData({
+        status: statusData,
+        prediction: predictionData,
+        timeline: timelineData,
+        recommendations: recommendationsData,
+      });
+      setIsLoading(false);
+    } catch (err) {
+      console.error('[Refresh] Failed to fetch data:', err);
+      // Don't set a hard error — SSE may still come online.
+    }
+  }, [sse]);
 
   // Prefer SSE data, fall back to polling data
   return {

@@ -610,9 +610,26 @@ class StateManager:
         if not self.is_running:
             self._task = asyncio.create_task(self._run())
 
-    def stop(self):
-        if self._task and not self._task.done():
-            self._task.cancel()
+    async def stop(self):
+        """Cancel the background loop and wait for it to finish.
+
+        Made async so callers (FastAPI lifespan shutdown) can ``await`` the
+        cancellation — this guarantees the loop has fully unrolled before the
+        process tears down, avoiding CancelledError mid DB-write leaks.
+        """
+        if not self._task or self._task.done():
+            self._task = None
+            return
+        self._task.cancel()
+        try:
+            await self._task
+        except asyncio.CancelledError:
+            # Expected when we initiated the cancel — swallow.
+            pass
+        except Exception as e:  # pragma: no cover - defensive
+            print(f"[SSE] Error during state manager shutdown: {e}")
+        finally:
+            self._task = None
 
 
 # Singleton

@@ -20,6 +20,8 @@ export interface Alert {
   id: number;
   type: 'warning' | 'info' | 'success' | 'danger';
   message: string;
+  // NOTE: at runtime this comes from `new Date()` calls in AlertPanel,
+  // but stay as `Date` here for type-safety with the existing API.
   timestamp: Date;
   acknowledged: boolean;
 }
@@ -74,28 +76,6 @@ export interface EscalationInfo {
 export interface EscalationStatus {
   active_escalations: EscalationInfo[];
   total_escalated: number;
-}
-
-export interface WeatherData {
-  condition: string;
-  temperature: number;
-  impact_score: number;
-  historical_note: string;
-  icon: string;
-}
-
-export interface AIInsight {
-  category: string;
-  priority: string;
-  text: string;
-  metric: string;
-  suggested_action: string;
-}
-
-export interface ImpactSummary {
-  today: { revenue_saved: number; patients_helped: number; hours_saved: number; recommendations_executed: number; };
-  all_time: { revenue_saved: number; patients_helped: number; hours_saved: number; };
-  daily_history: Array<{ date: string; revenue: number; patients: number; hours: number; }>;
 }
 
 export interface HandoffReport {

@@ -416,13 +416,17 @@ class MLEngine:
         
         print(f"[ML Engine] Training on {len(X)} samples with {X.shape[1]} features (source: {data_source})")
         
-        # Scale features
-        X_scaled = self.scaler.fit_transform(X)
-        
-        # Split data — use shuffle=False for temporal ordering
+        # Split data FIRST (temporal ordering — no shuffle), THEN fit the
+        # scaler on training data only. Fitting the scaler on the full
+        # dataset before splitting causes data leakage and inflates the
+        # reported test metrics.
         X_train, X_test, y_train, y_test = train_test_split(
-            X_scaled, y, test_size=0.2, random_state=42, shuffle=False
+            X, y, test_size=0.2, random_state=42, shuffle=False
         )
+        
+        # Scale features using statistics from the TRAINING split only
+        X_train_scaled = self.scaler.fit_transform(X_train)
+        X_test_scaled = self.scaler.transform(X_test)
         
         models_config = {
             "gradient_boosting": GradientBoostingRegressor(
@@ -445,8 +449,8 @@ class MLEngine:
             print(f"[ML Engine] Training {name}...")
             train_start = datetime.now()
             
-            model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
+            model.fit(X_train_scaled, y_train)
+            y_pred = model.predict(X_test_scaled)
             
             train_time_ms = (datetime.now() - train_start).total_seconds() * 1000
             

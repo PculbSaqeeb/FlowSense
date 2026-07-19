@@ -75,6 +75,18 @@ export function PatientFlowDiagram({ status, edPatients, dischargeReady, isLoadi
             <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8" />
             <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.3" />
           </linearGradient>
+          {/* Arrowhead markers used by flow paths. The Arrivals → Triage
+              path references url(#arrowGreen) — define it (and equivalents
+              for the other colored flow lines for future use). */}
+          <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#22c55e" />
+          </marker>
+          <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#3b82f6" />
+          </marker>
+          <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#ef4444" />
+          </marker>
         </defs>
 
         {/* ARRIVALS NODE */}
@@ -84,7 +96,7 @@ export function PatientFlowDiagram({ status, edPatients, dischargeReady, isLoadi
         <text x="60" y="126" textAnchor="middle" fill="#9ca3af" fontSize="8">per hour</text>
 
         {/* Flow arrow: Arrivals → Triage */}
-        <path d="M 110 100 C 140 100, 145 100, 170 100" stroke="url(#flowGreen)" strokeWidth="3" fill="none" markerEnd="url(#arrowGreen)" />
+        <path d="M 110 100 C 140 100, 145 100, 170 100" stroke="url(#flowGreen)" strokeWidth="3" fill="none" />
         <circle cx="140" cy="100" r="2" fill="#22c55e">
           <animate attributeName="cx" from="110" to="170" dur="1.5s" repeatCount="indefinite" />
           <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" />
