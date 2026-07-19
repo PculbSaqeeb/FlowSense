@@ -74,10 +74,10 @@ export default function Dashboard() {
       {!soundEnabled && (
         <div
           onClick={enableSound}
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 bg-gray-800/95 border border-gray-600 rounded-xl cursor-pointer hover:bg-gray-700/95 transition-colors shadow-2xl"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-sm sm:w-auto z-50 flex items-center justify-center gap-2 px-2 py-2.5 bg-gray-800/95 border border-gray-600 rounded-xl cursor-pointer hover:bg-gray-700/95 transition-colors shadow-2xl"
         >
-          <VolumeX className="w-4 h-4 text-yellow-400" />
-          <span className="text-sm text-gray-200">Click anywhere to enable alert sounds</span>
+          <VolumeX className="w-5 h-5 text-yellow-400 shrink-0" />
+          <span className="text-sm font-medium text-gray-200">Click anywhere to enable alert sounds</span>
         </div>
       )}
 
