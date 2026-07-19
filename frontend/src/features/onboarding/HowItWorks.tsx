@@ -491,7 +491,7 @@ export function HowItWorks() {
     <>
       <button
         onClick={handleOpen}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-500 rounded-full shadow-lg hover:shadow-blue-500/25 transition-all group border border-blue-400/20"
+        className="fixed bottom-6 right-4 sm:right-6 z-40 flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-500 rounded-full shadow-lg hover:shadow-blue-500/25 transition-all group border border-blue-400/20"
         title="How FlowSense Works"
       >
         <Info className="w-5 h-5 text-white" />

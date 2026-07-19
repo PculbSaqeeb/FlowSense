@@ -74,7 +74,7 @@ function ToastItem({ alert, onClose }: { alert: Alert, onClose: () => void }) {
           {getAlertIcon(alert.type)}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold text-white leading-relaxed">{alert.message}</p>
+          <p className="text-[13px] font-semibold text-white leading-relaxed line-clamp-2" title={alert.message}>{alert.message}</p>
           <p className="text-[10px] text-gray-400 mt-1">{formatTime(alert.timestamp)}</p>
         </div>
         <button
@@ -192,12 +192,11 @@ export function AlertPanel({ prediction, escalations: escalationsProp }: AlertPa
     if (newAlerts.length > 0) {
       setAlerts(prev => [...newAlerts, ...prev].slice(0, 10));
       
-      // Show toast ONLY if it's NOT the first load
-      if (!isFirstLoad) {
+      if (!isFirstLoad && !isOpen) {
         setToasts(prev => [...newAlerts, ...prev]);
       }
     }
-  }, [prediction]);
+  }, [prediction, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -226,6 +225,12 @@ export function AlertPanel({ prediction, escalations: escalationsProp }: AlertPa
 
   const unacknowledgedCount = alerts.filter(a => !a.acknowledged).length;
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('alert-count-changed', { detail: unacknowledgedCount }));
+    }
+  }, [unacknowledgedCount]);
+
   return (
     <div className="relative" ref={panelRef}>
       {/* Backdrop */}
@@ -238,8 +243,9 @@ export function AlertPanel({ prediction, escalations: escalationsProp }: AlertPa
 
       {/* Bell Button */}
       <button
+        id="main-alert-btn"
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative p-2.5 rounded-xl transition-all duration-200 ${
+        className={`relative p-2.5 rounded-xl transition-all duration-200 hidden lg:block ${
           isOpen
             ? 'bg-primary-500/20 border border-primary-500/30'
             : 'bg-white/5 hover:bg-white/10 border border-transparent'
@@ -255,7 +261,7 @@ export function AlertPanel({ prediction, escalations: escalationsProp }: AlertPa
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute right-0 top-12 w-80 rounded-xl z-50 overflow-hidden shadow-2xl border border-gray-700 bg-gray-900">
+        <div className="fixed lg:absolute right-4 lg:right-0 top-16 lg:top-12 w-[calc(100vw-2rem)] sm:w-80 max-w-sm rounded-xl z-50 overflow-hidden shadow-2xl border border-gray-700 bg-gray-900">
 
           {/* Header */}
           <div className="px-4 py-3 border-b border-gray-700">
@@ -336,7 +342,7 @@ export function AlertPanel({ prediction, escalations: escalationsProp }: AlertPa
                         {getAlertIcon(alert.type)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-gray-200 leading-relaxed">{alert.message}</p>
+                        <p className="text-xs text-gray-200 leading-relaxed line-clamp-2" title={alert.message}>{alert.message}</p>
                         <p className="text-[10px] text-gray-500 mt-1">{formatTime(alert.timestamp)}</p>
                       </div>
                       <button

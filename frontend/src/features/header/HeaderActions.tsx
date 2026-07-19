@@ -29,7 +29,14 @@ export function HeaderActions({
   onRefresh,
 }: HeaderActionsProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleCountChange = (e: any) => setNotificationCount(e.detail);
+    window.addEventListener('alert-count-changed', handleCountChange);
+    return () => window.removeEventListener('alert-count-changed', handleCountChange);
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -79,10 +86,10 @@ export function HeaderActions({
           <span className="text-xs hidden xl:inline">Refresh</span>
         </button>
 
-        <React.Suspense fallback={null}>
-          <AlertPanel prediction={prediction} />
-        </React.Suspense>
       </div>
+      <React.Suspense fallback={null}>
+        <AlertPanel prediction={prediction} />
+      </React.Suspense>
 
       {/* Mobile/Tablet (<lg): 3-dot menu with full dropdown */}
       <div className="relative lg:hidden" ref={menuRef}>
@@ -112,45 +119,62 @@ export function HeaderActions({
             <div className="absolute right-0 top-12 w-72 md:w-96 rounded-xl z-50 overflow-hidden shadow-2xl border border-gray-700 bg-gray-900">
               <div className="p-2 space-y-0.5">
 
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 active:bg-white/10 transition-colors">
-                  <div className="p-1.5 bg-white/5 rounded-lg">
-                    <FlaskConical className="w-4 h-4 text-gray-400" />
-                  </div>
-                  <span className="text-sm flex-1">Test Prediction</span>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <React.Suspense fallback={null}>
-                      <PredictionVerifier compact />
-                    </React.Suspense>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 active:bg-white/10 transition-colors">
-                  <div className="p-1.5 bg-white/5 rounded-lg">
-                    <Download className="w-4 h-4 text-gray-400" />
-                  </div>
-                  <span className="text-sm flex-1">Export Report</span>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <React.Suspense fallback={null}>
-                      <ReportExport
-                        status={status}
-                        prediction={prediction}
-                        recommendations={recommendations}
-                        staff={staff}
-                        surgeries={surgeries}
-                      />
-                    </React.Suspense>
+                <div 
+                  className="flex items-center justify-between px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 active:bg-white/10 transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    const btn = e.currentTarget.querySelector('button');
+                    if (btn && !btn.contains(e.target as Node)) btn.click();
+                  }}
+                >
+                  <span className="text-sm pointer-events-none">Test Prediction</span>
+                  <div className="flex items-center gap-2">
+                    <div className="pointer-events-none" onClick={(e) => e.stopPropagation()}>
+                      <React.Suspense fallback={null}>
+                        <PredictionVerifier compact />
+                      </React.Suspense>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 active:bg-white/10 transition-colors">
-                  <div className="p-1.5 bg-white/5 rounded-lg">
-                    <Bell className="w-4 h-4 text-gray-400" />
+                <div 
+                  className="flex items-center justify-between px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 active:bg-white/10 transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    const btn = e.currentTarget.querySelector('button');
+                    if (btn && !btn.contains(e.target as Node)) btn.click();
+                  }}
+                >
+                  <span className="text-sm pointer-events-none">Export Report</span>
+                  <div className="flex items-center gap-2">
+                    <div className="pointer-events-none" onClick={(e) => e.stopPropagation()}>
+                      <React.Suspense fallback={null}>
+                        <ReportExport
+                          status={status}
+                          prediction={prediction}
+                          recommendations={recommendations}
+                          staff={staff}
+                          surgeries={surgeries}
+                        />
+                      </React.Suspense>
+                    </div>
                   </div>
-                  <span className="text-sm flex-1">Notifications</span>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <React.Suspense fallback={null}>
-                      <AlertPanel prediction={prediction} />
-                    </React.Suspense>
+                </div>
+
+                <div 
+                  className="flex items-center justify-between px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 active:bg-white/10 transition-colors cursor-pointer"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    const btn = document.getElementById('main-alert-btn');
+                    if (btn) btn.click();
+                  }}
+                >
+                  <span className="text-sm pointer-events-none">Notifications</span>
+                  <div className="relative pointer-events-none px-3 py-2 glass rounded-lg">
+                    <Bell className="w-4 h-4 text-gray-300" />
+                    {notificationCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-[16px] px-1 bg-red-500 rounded-full text-[9px] flex items-center justify-center text-white font-bold">
+                        {notificationCount}
+                      </span>
+                    )}
                   </div>
                 </div>
 
