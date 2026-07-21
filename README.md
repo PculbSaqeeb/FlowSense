@@ -174,9 +174,7 @@ flowchart LR
 
 | Resource | URL |
 |----------|-----|
-| 🖥️ Frontend Dashboard | `https://flowsense.vercel.app` |
-| 🔌 API Documentation | `https://flowsense-api.onrender.com/docs` |
-| 📊 API Health Check | `https://flowsense-api.onrender.com/health` |
+| 🖥️ Frontend Dashboard | `https://flow-sense-omega.vercel.app/` |
 
 ---
 
